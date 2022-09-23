@@ -9,6 +9,7 @@ cols = ["DESCRIÇÃO_CONTRATO","DESCRIÇÃO_CONTRATADA","DESCRIÇÃO_UNIDADE",
         "TIPO_CONTRATAÇÃO_PREFEITURA_MUNICÍPIO_SP","TIPO_CONTRATAÇÃO_PREFEITURA_MUNICÍPIO_OS_CLT",
         "TIPO_CONTRATAÇÃO_PREFEITURA_MUNICÍPIO_OS_TERCEIROS","TOTAL_HORAS_APONTADAS","AVALIAÇÃO"]
 
+
 # Identificando o caminho dos arquivos em cada pasta
 n = 1
 while n < 24:
@@ -293,22 +294,21 @@ while n < 24:
     def tratamento(df):
 
         # Apagando as colunas irrelevantes
-        df = df.drop(["DESCRIÇÃO_CONTRATO","DESCRIÇÃO_CONTRATADA",
-                "DESCRIÇÃO_SERVIÇO","CARGO_EQUIPE_MÍNIMA",
+        df = df.drop(["DESCRIÇÃO_CONTRATO","DESCRIÇÃO_CONTRATADA","DESCRIÇÃO_SERVIÇO","CARGO_EQUIPE_MÍNIMA",
                 "CARGA_HORÁRIA_SEMANAL","EQUIPE_MÍNIMA_CONTRATADA",
                 "TIPO_CONTRATAÇÃO_PREFEITURA_MUNICÍPIO_SP",
                 "TIPO_CONTRATAÇÃO_PREFEITURA_MUNICÍPIO_OS_CLT",
                 "TIPO_CONTRATAÇÃO_PREFEITURA_MUNICÍPIO_OS_TERCEIROS"], axis=1)
 
         # Removendo acentos dos nomes das colunas para evitar problemas
-        df[["DESCRICAO_UNIDADE", "DESCRICAO_PERIODO",
-            "TOTAL_CARGA_HORARIA_CONTRATADA", "AVALIACAO"]
-            ] = df[["DESCRIÇÃO_UNIDADE", "DESCRIÇÃO_PERÍODO",
-                    "TOTAL_CARGA_HORÁRIA_CONTRATADA", "AVALIAÇÃO"]]
+        df[["DESCRICAO_UNIDADE", "DESCRICAO_PERIODO","TOTAL_CARGA_HORARIA_CONTRATADA", "AVALIACAO"]
+            ] = df[["DESCRIÇÃO_UNIDADE", "DESCRIÇÃO_PERÍODO","TOTAL_CARGA_HORÁRIA_CONTRATADA", "AVALIAÇÃO"]]
 
         df = df.drop(["DESCRIÇÃO_UNIDADE", "DESCRIÇÃO_PERÍODO",
             "TOTAL_CARGA_HORÁRIA_CONTRATADA", "AVALIAÇÃO"], axis=1)
 
+        # Removendo acentos dos itens da coluna de unidades para evitar problemas
+        df["DESCRICAO_UNIDADE"] = df["DESCRICAO_UNIDADE"].str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8')
 
         # Transformando os valores faltantes em zero
         df["TOTAL_CARGA_HORARIA_CONTRATADA"] = df["TOTAL_CARGA_HORARIA_CONTRATADA"].fillna(0)
@@ -384,16 +384,27 @@ while n < 24:
             df["ID_CONTRATO"] = "R023-2016"
         elif n == 23:
             df["ID_CONTRATO"] = "R024-2020"
+
+        # Chamando o dicionário de distritos
+        df2 = pd.read_csv("Distrito_Unidade.csv",
+                        encoding='utf-8',
+                        sep=";",
+                        decimal=",",
+                        index_col=None,
+                        header=0)
+
+        # Adicionando os distritos nas planilhas, utilizando a unidade como chave
+        df = pd.merge(df, df2, how='left', left_on='DESCRICAO_UNIDADE', right_on='DESCRICAO_UNIDADE')
         
         # Colocando as colunas em ordem
-        df = df.reindex(columns = ["ID_CONTRATO", "DESCRICAO_UNIDADE", "DESCRICAO_PERIODO",
+        df = df.reindex(columns = ["CD_DIST", "DISTRITOS", "ID_CONTRATO", "DESCRICAO_UNIDADE", "DESCRICAO_PERIODO",
                         "TOTAL_HORAS_APONTADAS", "TOTAL_APONTADA_SEM_EXCEDENTE",
                         "TOTAL_CARGA_HORARIA_CONTRATADA", "AVALIACAO", "EXCEDENTE",
                         "PORCENTAGEM_INTEGRAL", "PORCENTAGEM_SEM_EXCEDENTE"])
 
         # Exportando o arquivo depois de tratado
         if n == 1:
-            df.to_csv("Output_data_(contratos)/R001-2014.csv",
+            df.to_csv("Output_data_#1_(contratos)/R001-2014.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -401,7 +412,7 @@ while n < 24:
                     header=True)
 
         elif n == 2:
-            df.to_csv("Output_data_(contratos)/R002-2014.csv",
+            df.to_csv("Output_data_#1_(contratos)/R002-2014.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -409,7 +420,7 @@ while n < 24:
                     header=True)
 
         elif n == 3:
-            df.to_csv("Output_data_(contratos)/R003-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R003-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -417,7 +428,7 @@ while n < 24:
                     header=True)
         
         elif n == 4:
-            df.to_csv("Output_data_(contratos)/R004-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R004-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -425,7 +436,7 @@ while n < 24:
                     header=True)
         
         elif n == 5:
-            df.to_csv("Output_data_(contratos)/R005-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R005-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -433,7 +444,7 @@ while n < 24:
                     header=True)
         
         elif n == 6:
-            df.to_csv("Output_data_(contratos)/R006-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R006-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -441,7 +452,7 @@ while n < 24:
                     header=True)
         
         elif n == 7:
-            df.to_csv("Output_data_(contratos)/R007-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R007-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -449,7 +460,7 @@ while n < 24:
                     header=True)
         
         elif n == 8:
-            df.to_csv("Output_data_(contratos)/R008-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R008-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -457,7 +468,7 @@ while n < 24:
                     header=True)
         
         elif n == 9:
-            df.to_csv("Output_data_(contratos)/R009-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R009-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -465,7 +476,7 @@ while n < 24:
                     header=True)
         
         elif n == 10:
-            df.to_csv("Output_data_(contratos)/R010-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R010-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -473,7 +484,7 @@ while n < 24:
                     header=True)
         
         elif n == 11:
-            df.to_csv("Output_data_(contratos)/R011-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R011-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -481,7 +492,7 @@ while n < 24:
                     header=True)
         
         elif n == 12:
-            df.to_csv("Output_data_(contratos)/R012-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R012-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -489,7 +500,7 @@ while n < 24:
                     header=True)
         
         elif n == 13:
-            df.to_csv("Output_data_(contratos)/R014-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R014-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -497,7 +508,7 @@ while n < 24:
                     header=True)
         
         elif n == 14:
-            df.to_csv("Output_data_(contratos)/R015-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R015-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -505,7 +516,7 @@ while n < 24:
                     header=True)
         
         elif n == 15:
-            df.to_csv("Output_data_(contratos)/R016-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R016-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -513,7 +524,7 @@ while n < 24:
                     header=True)
         
         elif n == 16:
-            df.to_csv("Output_data_(contratos)/R017-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R017-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -521,7 +532,7 @@ while n < 24:
                     header=True)
         
         elif n == 17:
-            df.to_csv("Output_data_(contratos)/R018-2015.csv",
+            df.to_csv("Output_data_#1_(contratos)/R018-2015.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -529,7 +540,7 @@ while n < 24:
                     header=True)
         
         elif n == 18:
-            df.to_csv("Output_data_(contratos)/R019-2016.csv",
+            df.to_csv("Output_data_#1_(contratos)/R019-2016.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -537,7 +548,7 @@ while n < 24:
                     header=True)
         
         elif n == 19:
-            df.to_csv("Output_data_(contratos)/R020-2016.csv",
+            df.to_csv("Output_data_#1_(contratos)/R020-2016.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -545,7 +556,7 @@ while n < 24:
                     header=True)
         
         elif n == 20:
-            df.to_csv("Output_data_(contratos)/R021-2016.csv",
+            df.to_csv("Output_data_#1_(contratos)/R021-2016.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -553,7 +564,7 @@ while n < 24:
                     header=True)
         
         elif n == 21:
-            df.to_csv("Output_data_(contratos)/R022-2016.csv",
+            df.to_csv("Output_data_#1_(contratos)/R022-2016.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -561,7 +572,7 @@ while n < 24:
                     header=True)
         
         elif n == 22:
-            df.to_csv("Output_data_(contratos)/R023-2016.csv",
+            df.to_csv("Output_data_#1_(contratos)/R023-2016.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -569,7 +580,7 @@ while n < 24:
                     header=True)
         
         elif n == 23:
-            df.to_csv("Output_data_(contratos)/R024-2020.csv",
+            df.to_csv("Output_data_#1_(contratos)/R024-2020.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -585,7 +596,7 @@ while n < 24:
 
 
 # Identificando o caminho dos arquivos a serem ordenados
-path = "Output_data_(contratos)/"
+path = "Output_data_#1_(contratos)/"
 all_files = glob.glob(path + "*.csv")
 
 li = [pd.read_csv(file,
@@ -604,7 +615,7 @@ def tratamento_mes(df):
     df["TOTAL_CARGA_HORARIA_CONTRATADA"] = df["TOTAL_CARGA_HORARIA_CONTRATADA"].astype(np.float)
 
     # Fazendo o agrupamento por mês
-    df = df.groupby(["ID_CONTRATO","DESCRICAO_UNIDADE","DESCRICAO_PERIODO"])["TOTAL_HORAS_APONTADAS","TOTAL_CARGA_HORARIA_CONTRATADA"].sum().reset_index()
+    df = df.groupby(["CD_DIST", "DISTRITOS", "ID_CONTRATO","DESCRICAO_UNIDADE","DESCRICAO_PERIODO"])["TOTAL_HORAS_APONTADAS","TOTAL_CARGA_HORARIA_CONTRATADA"].sum().reset_index()
 
     # Criando as coluna de avaliação
     df["AVALIACAO"] = df["TOTAL_HORAS_APONTADAS"] - df["TOTAL_CARGA_HORARIA_CONTRATADA"]
@@ -631,13 +642,13 @@ def tratamento_mes(df):
     df["PORCENTAGEM_SEM_EXCEDENTE"] = df["PORCENTAGEM_SEM_EXCEDENTE"].fillna(0)
 
     # Colocando as colunas em ordem
-    df = df.reindex(columns = ["ID_CONTRATO", "DESCRICAO_UNIDADE", "DESCRICAO_PERIODO",
+    df = df.reindex(columns = ["CD_DIST", "DISTRITOS", "ID_CONTRATO", "DESCRICAO_UNIDADE", "DESCRICAO_PERIODO",
                     "TOTAL_HORAS_APONTADAS", "TOTAL_APONTADA_SEM_EXCEDENTE",
                     "TOTAL_CARGA_HORARIA_CONTRATADA", "AVALIACAO", "EXCEDENTE",
                     "PORCENTAGEM_INTEGRAL", "PORCENTAGEM_SEM_EXCEDENTE"])
 
     # Salvando o arquivo tratado
-    df.to_csv("Output_data_(meses)/Equipe_minima_por_mes.csv",
+    df.to_csv("Output_data_#2_(meses)/Equipe_minima_por_mes.csv",
                     encoding='utf-8',
                     sep=';',
                     decimal=".",
@@ -647,3 +658,54 @@ def tratamento_mes(df):
 
 # Chamando a função para tratar os dados
 tratamento_mes(df)
+
+
+# Pegando o caminho dos dados por mês
+df = pd.read_csv("Output_data_#2_(meses)/Equipe_minima_por_mes.csv",
+                encoding='utf-8',
+                sep=";",
+                decimal=",",
+                index_col=None,
+                header=0)
+
+# Definindo a função de tratamento dos dados
+def tratamento_ano(df):
+
+    # Certificando que as colunas relevantes são numéricas
+    df["TOTAL_HORAS_APONTADAS"] = df["TOTAL_HORAS_APONTADAS"].astype(np.float)
+    df["TOTAL_APONTADA_SEM_EXCEDENTE"] = df["TOTAL_APONTADA_SEM_EXCEDENTE"].astype(np.float)
+    df["TOTAL_CARGA_HORARIA_CONTRATADA"] = df["TOTAL_CARGA_HORARIA_CONTRATADA"].astype(np.float)
+    df["AVALIACAO"] = df["AVALIACAO"].astype(np.float)
+    df["EXCEDENTE"] = df["EXCEDENTE"].astype(np.float)
+
+    # Fazendo o agrupamento por ano
+    df = df.groupby(["CD_DIST", "DISTRITOS", "ID_CONTRATO","DESCRICAO_UNIDADE"])[
+                    "TOTAL_HORAS_APONTADAS","TOTAL_APONTADA_SEM_EXCEDENTE","TOTAL_CARGA_HORARIA_CONTRATADA","AVALIACAO","EXCEDENTE"].sum().reset_index()
+
+    # Criando a coluna que calcula a porcentagem integral da apontada por contratada
+    df["PORCENTAGEM_INTEGRAL"] = df["TOTAL_HORAS_APONTADAS"] / df["TOTAL_CARGA_HORARIA_CONTRATADA"]
+
+    # Criando a coluna que calcula a porcentagem sem excedente da apontada por contratada
+    df["PORCENTAGEM_SEM_EXCEDENTE"] = df["TOTAL_APONTADA_SEM_EXCEDENTE"] / df["TOTAL_CARGA_HORARIA_CONTRATADA"]
+
+    # Removendo os valores nulos e inf causados por divisão com 0
+    df["PORCENTAGEM_INTEGRAL"].replace([np.inf, -np.inf], "N/A", inplace=True)
+    df["PORCENTAGEM_SEM_EXCEDENTE"] = df["PORCENTAGEM_SEM_EXCEDENTE"].fillna(0)
+
+    # Colocando as colunas em ordem
+    df = df.reindex(columns = ["CD_DIST", "DISTRITOS", "ID_CONTRATO", "DESCRICAO_UNIDADE", "TOTAL_HORAS_APONTADAS",
+                    "TOTAL_APONTADA_SEM_EXCEDENTE", "TOTAL_CARGA_HORARIA_CONTRATADA", "AVALIACAO",
+                    "EXCEDENTE", "PORCENTAGEM_INTEGRAL", "PORCENTAGEM_SEM_EXCEDENTE"])
+
+    # Salvando o arquivo tratado (lembre de nomear o ano)
+    df.to_csv("Output_data_#3_(anual)/Equipe_minima_anual.csv",
+                    encoding='utf-8',
+                    sep=';',
+                    decimal=".",
+                    index=False,
+                    header=True)
+
+
+# Chamando a função para tratar os dados
+tratamento_ano(df)
+
